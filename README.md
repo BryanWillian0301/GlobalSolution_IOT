@@ -1,83 +1,112 @@
 # 🩺 Smart Ergonomics & Fatigue Monitor (IoT)
 
-
 ![Status](https://img.shields.io/badge/Status-Conclu%C3%ADdo-brightgreen) ![IoT](https://img.shields.io/badge/IoT-ESP32-blue) ![Protocol](https://img.shields.io/badge/Protocol-MQTT-orange)
 
-## 👥 Integrantes do Grupo
+## 👥 Autores do Grupo
 * **Bryan Willian** (RM551305)
 * **Gabriel Freitas** (RM550187)
 * **Felipe Terra** (RM99405)
 
 ---
 
-## 🌍 Contexto: O Futuro do Trabalho e a Saúde
-Com a consolidação do *Home Office* e dos modelos híbridos, surgiram novos desafios para a saúde do trabalhador. A ausência de ergonomia supervisionada e o excesso de horas ininterruptas geram **má postura**, **fadiga crônica** e **Burnout**.
+## 📺 Demonstração do Projeto
+Assista ao vídeo explicativo com a demonstração de funcionamento:
 
-Este projeto propõe uma **Estação de Trabalho Inteligente** que utiliza IoT para monitorar ativamente o bem-estar do colaborador, alinhando produtividade com saúde ocupacional.
+[![Vídeo do Projeto](https://img.youtube.com/vi/VBWhibMaJrA/0.jpg)](https://youtu.be/VBWhibMaJrA)
 
----
-
-## 💡 A Solução
-O dispositivo atua como um assistente pessoal de ergonomia. Diferente de soluções passivas, ele intervém em tempo real:
-
-1.  **Monitoramento de Postura:** Alerta instantâneo (Visual e Sonoro) se o utilizador se aproximar demasiado da tela (postura curvada).
-2.  **Gestão de Pausas (Anti-Burnout):** Um temporizador inteligente bloqueia a estação após um período contínuo, exigindo uma pausa obrigatória.
-3.  **Conectividade MQTT:** Envia dados para a nuvem, permitindo que gestores acompanhem métricas de saúde da equipa remotamente.
+🔗 **Link direto:** [https://youtu.be/VBWhibMaJrA](https://youtu.be/VBWhibMaJrA)
 
 ---
 
-## 🛠️ Hardware e Montagem
+## 🌍 Contexto e Problema
+O futuro do trabalho já começou, trazendo consigo a flexibilidade do *Home Office* e dos ambientes híbridos. No entanto, essa liberdade trouxe desafios invisíveis para a saúde ocupacional:
 
-O projeto foi desenvolvido e simulado na plataforma **Wokwi**.
+* **Má Postura:** A falta de mobiliário adequado e supervisão leva a problemas crônicos de coluna e LER/DORT.
+* **Fadiga e Burnout:** A ausência de limites claros entre trabalho e descanso faz com que colaboradores passem horas ininterruptas frente às telas.
+* **Gestão Remota:** Gestores e RHs perderam a capacidade de monitorar o bem-estar físico de suas equipes à distância.
 
-### Componentes Utilizados:
-* **ESP32 DevKit V1:** Microcontrolador com Wi-Fi integrado.
-* **HC-SR04:** Sensor de Ultrassom (mede a distância do utilizador).
-* **LED RGB:** Feedback visual de status (Verde = OK, Amarelo = Alerta, Vermelho = Pausa).
-* **Buzzer:** Feedback sonoro para alertas e bloqueio.
+Este projeto visa resolver esses problemas utilizando a **Internet das Coisas (IoT)** para criar um ambiente de trabalho digitalmente assistido, seguro e mais humano.
+
+## 💡 A Solução Proposta
+Desenvolvemos uma **Estação de Trabalho Inteligente** baseada em ESP32. O dispositivo atua como um "guardião ativo" da saúde do colaborador, monitorando a distância (postura) e o tempo de trabalho (fadiga).
+
+Diferente de soluções passivas, nosso sistema:
+1.  **Alerta Imediatamente:** Avisa o usuário sobre má postura via *feedback* visual (LED RGB) e sonoro (Buzzer).
+2.  **Impõe Pausas:** Trava o sistema após um período de trabalho excessivo, prevenindo a exaustão mental.
+3.  **Conecta à Nuvem:** Utiliza o protocolo **MQTT** para permitir monitoramento e intervenção remota, simulando a gestão de saúde 4.0.
+
+---
+
+## 🛠️ Hardware e Componentes
+O projeto foi simulado no ambiente **Wokwi** utilizando os seguintes componentes:
+
+* **Microcontrolador:** ESP32 DevKit V1
+* **Sensor:** HC-SR04 (Sensor Ultrassônico de Distância)
+* **Atuador Visual:** LED RGB (Cátodo Comum)
+* **Atuador Sonoro:** Buzzer Piezoelétrico
+* **Conectividade:** Wi-Fi (Simulado) e Protocolo MQTT
 
 ### 📸 Diagrama do Circuito
 ![Diagrama do Circuito](image_ffe382.png)
 
 ---
 
-## 📡 Arquitetura IoT (MQTT)
+## 📡 Arquitetura de Comunicação (MQTT)
+A comunicação é o diferencial deste projeto, permitindo a integração entre o ambiente físico do trabalhador e a gestão digital corporativa.
 
-O sistema utiliza o protocolo MQTT para comunicação bidirecional com a nuvem.
+* **Broker Utilizado:** `broker.hivemq.com` (TCP Porta 1883)
+* **ID do Cliente:** `esp32-final-video-123`
 
-* **Broker:** `broker.hivemq.com`
-* **Porta:** `1883`
+### Tópicos e Endpoints
 
-| Tópico | Tipo | Descrição |
-| :--- | :--- | :--- |
-| `futuro_trabalho/ergonomia/status` | **Publish** | Envia o estado atual (`OK`, `ALERTA`, `PAUSA`). |
-| `futuro_trabalho/ergonomia/distancia` | **Publish** | Envia a distância medida em cm. |
-| `futuro_trabalho/ergonomia/pausa_cmd` | **Subscribe** | Recebe comando remoto para destravar o sistema (`REINICIAR_TIMER`). |
+| Tópico | Tipo | Função | Descrição |
+| :--- | :--- | :--- | :--- |
+| `futuro_trabalho/ergonomia/status` | **PUBLISH** (Saída) | Telemetria | Envia o estado atual do sistema: `OK`, `ALERTA_POSTURA` ou `PAUSA_NECESSARIA`. Permite criar dashboards de monitoramento. |
+| `futuro_trabalho/ergonomia/distancia` | **PUBLISH** (Saída) | Dados | Envia a distância exata medida em cm. Útil para histórico ergonômico. |
+| `futuro_trabalho/ergonomia/pausa_cmd` | **SUBSCRIBE** (Entrada) | Comando | Recebe ordens externas. O payload `REINICIAR_TIMER` destrava o sistema após a pausa obrigatória. |
 
 ---
 
-## 🚀 Como Executar o Projeto
+## 🚀 Instruções de Uso e Simulação
 
-### 1. Acesso à Simulação
-O projeto está totalmente funcional no Wokwi. Acesse através do link abaixo:
-
+### 1. Acesso ao Projeto
+Acesse a simulação funcional através do link abaixo:
 🔗 **[https://wokwi.com/projects/448171544208091137](https://wokwi.com/projects/448171544208091137)**
 
 ### 2. Dependências
-Certifique-se de instalar a seguinte biblioteca na IDE do Arduino ou no `libraries.txt` do Wokwi:
-* `PubSubClient` 
+Para rodar este código (no Wokwi ou na IDE Arduino), é necessário instalar a seguinte biblioteca:
+* `PubSubClient` (por Nick O'Leary) - Responsável pela comunicação MQTT.
 
-### 3. Código Fonte (`sketch.ino`)
+### 3. Como Testar (Passo a Passo)
+
+1.  **Início:** Dê o "Play" na simulação. O sistema conectará ao Wi-Fi e ao Broker MQTT.
+2.  **Teste de Postura:** Clique no sensor HC-SR04.
+    * Mantenha a distância entre **35cm e 55cm** → **LED Verde** (Postura Correta).
+    * Mova para menos de 35cm → **LED Amarelo** + Bip (Alerta de Postura).
+3.  **Teste de Fadiga (Pausa Obrigatória):**
+    * Aguarde o tempo limite (configurado para 15 segundos para fins de demonstração no vídeo).
+    * O sistema entrará em modo de bloqueio: **LED Vermelho Piscando** + Alarme Sonoro.
+4.  **Desbloqueio Remoto (Simulação de Gestão):**
+    * O sistema não destrava sozinho, simulando a necessidade de validação da pausa pelo RH ou Gestor.
+    * Use um cliente MQTT Web (como o HiveMQ Web Client).
+    * Publique a mensagem `REINICIAR_TIMER` no tópico `futuro_trabalho/ergonomia/pausa_cmd`.
+    * O sistema receberá o comando, validará a pausa e o LED voltará a ficar **Verde**.
+
+---
+
+## 💻 Código Fonte (`sketch.ino`)
 
 ```cpp
 #include <WiFi.h>
 #include <PubSubClient.h>
 
-// --- CONFIGURAÇÕES ---
+// ==========================================
+// 1. CONFIGURAÇÕES E PINOS
+// ==========================================
 const char* ssid = "Wokwi-GUEST";
 const char* password = "";
 const char* mqtt_server = "broker.hivemq.com";
-const char* mqtt_client_id = "esp32-gs-students-v1";
+const char* mqtt_client_id = "esp32-final-video-123"; 
 
 const int trigPin = 18;
 const int echoPin = 19;
@@ -88,7 +117,9 @@ const int buzzerPin = 13;
 
 #define DISTANCIA_MIN 35 
 #define DISTANCIA_MAX 55 
-const unsigned long LIMITE_TRABALHO = 15000; // 15s para demonstração (vídeo)
+
+// ATENÇÃO: TEMPO CURTO PARA O VÍDEO (15 SEGUNDOS)
+const unsigned long LIMITE_TRABALHO = 15000; 
 
 unsigned long tempoInicioTrabalho = 0;
 long distanciaAtual = 0;
@@ -101,10 +132,12 @@ const char* TOPICO_COMANDO = "futuro_trabalho/ergonomia/pausa_cmd";
 WiFiClient espClient;
 PubSubClient client(espClient);
 
-// --- FUNÇÕES ---
+// ==========================================
+// 2. FUNÇÕES AUXILIARES
+// ==========================================
 
 void setCor(bool r, bool g, bool b) {
-  // Configuração Cátodo Comum (HIGH = Liga)
+  // Configurado para CÁTODO COMUM (HIGH liga o LED)
   digitalWrite(ledR, r ? HIGH : LOW);
   digitalWrite(ledG, g ? HIGH : LOW);
   digitalWrite(ledB, b ? HIGH : LOW);
@@ -129,20 +162,22 @@ void setup_wifi() {
     Serial.print(".");
     tentativas++;
   }
-  Serial.println(WiFi.status() == WL_CONNECTED ? " OK!" : " Offline");
+  Serial.println(WiFi.status() == WL_CONNECTED ? " OK!" : " Falha (Modo Offline)");
 }
 
+// CALLBACK MQTT (Recebe o comando remoto)
 void callback(char* topic, byte* payload, unsigned int length) {
   String msg = "";
   for (int i = 0; i < length; i++) { msg += (char)payload[i]; }
-  Serial.print("Mensagem Recebida: "); Serial.println(msg);
+  
+  Serial.print("Chegou mensagem: "); Serial.println(msg); 
 
   if (String(topic) == TOPICO_COMANDO && msg == "REINICIAR_TIMER") {
-    tempoInicioTrabalho = millis();
+    tempoInicioTrabalho = millis(); // ZERA O RELÓGIO
     noTone(buzzerPin);
-    setCor(0,1,0); // Verde
+    setCor(0,1,0); // VOLTA VERDE
     client.publish(TOPICO_STATUS, "TRABALHO_RETOMADO");
-    Serial.println(">>> SISTEMA DESTRAVADO <<<");
+    Serial.println(">>> SISTEMA DESTRAVADO COM SUCESSO <<<");
   }
 }
 
@@ -150,12 +185,15 @@ void reconnect() {
   if (WiFi.status() != WL_CONNECTED) return;
   if (!client.connected()) {
     if (client.connect(mqtt_client_id)) {
-      client.subscribe(TOPICO_COMANDO);
+      client.subscribe(TOPICO_COMANDO); 
+      Serial.println("MQTT Conectado e Assinado!");
     }
   }
 }
 
-// --- SETUP E LOOP ---
+// ==========================================
+// 3. LOOP PRINCIPAL
+// ==========================================
 
 void setup() {
   Serial.begin(115200);
@@ -165,23 +203,25 @@ void setup() {
 
   setup_wifi();
   client.setServer(mqtt_server, 1883);
-  client.setCallback(callback);
+  client.setCallback(callback); 
   tempoInicioTrabalho = millis();
 }
 
 void loop() {
   if (WiFi.status() == WL_CONNECTED) {
      if (!client.connected()) reconnect();
-     client.loop();
+     client.loop(); 
   }
 
-  // Verifica Pausa Obrigatória
+  // Verifica se estourou o tempo (PAUSA OBRIGATÓRIA)
   if (millis() - tempoInicioTrabalho >= LIMITE_TRABALHO) {
+    
+    // Pisca LED e Buzzer sem usar delay (não trava o MQTT)
     if ((millis() / 500) % 2 == 0) { 
-      setCor(1, 0, 0); // Vermelho piscando
+      setCor(1, 0, 0); // Vermelho
       tone(buzzerPin, 1000); 
     } else {
-      setCor(0, 0, 0);
+      setCor(0, 0, 0); // Apagado
       noTone(buzzerPin);
     }
     
@@ -190,10 +230,10 @@ void loop() {
       client.publish(TOPICO_STATUS, "PAUSA_NECESSARIA");
       timerMsg = millis();
     }
-    return;
+    return; 
   }
 
-  // Monitoramento Normal
+  // Monitoramento Normal de Postura
   static unsigned long delaySensor = 0;
   if (millis() - delaySensor < 500) return; 
   delaySensor = millis();
